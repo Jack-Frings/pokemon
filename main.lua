@@ -62,6 +62,9 @@ function love.load()
     gStateStack:push(StartState())
 
     love.keyboard.keysPressed = {}
+
+    nightTimer = 0
+    nightDuration = 10
 end
 
 function love.resize(w, h)
@@ -80,10 +83,32 @@ function love.keyboard.wasPressed(key)
     return love.keyboard.keysPressed[key]
 end
 
+
+function nightUpdate(dt)
+    nightTimer = nightTimer + dt
+
+    if nightTimer >= nightDuration then
+        nightTime = not nightTime
+        nightTimer = nightTimer - nightDuration
+
+        if nightTime then
+            gStateStack:push(BattleMessageState('Night is coming... Be careful!', function() end), false)
+            Timer.after(1, function()
+                gStateStack:pop()
+            end)
+        elseif not nightTime then
+            gStateStack:push(BattleMessageState('The sun is rising again!',function() end, false))
+            Timer.after(1, function()
+                gStateStack:pop()
+            end)
+        end
+    end
+end
+
 function love.update(dt)
     Timer.update(dt)
     gStateStack:update(dt)
-
+    nightUpdate(dt)
     love.keyboard.keysPressed = {}
 end
 

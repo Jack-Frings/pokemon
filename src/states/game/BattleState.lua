@@ -15,13 +15,25 @@ function BattleState:init(player)
     -- flag for when the battle can take input, set in the first update call
     self.battleStarted = false
 
-    self.opponent = Opponent {
-        party = Party {
-            pokemon = {
-                Pokemon(Pokemon.getRandomDef(), math.random(2, 6))
+    if nightTime then 
+        self.opponent = Opponent {
+            party = Party {
+                pokemon = {
+                    Pokemon(Pokemon.getRandomDef(), math.random(2, 4))
+                }
             }
         }
-    }
+    elseif not nightTime then
+        self.opponent = Opponent {
+            party = Party {
+                pokemon = {
+                    Pokemon(Pokemon.getRandomDef(), math.random(2, 6))
+                }
+            }
+        }
+    end
+
+    
 
     self.playerSprite = BattleSprite(self.player.party.pokemon[1].battleSpriteBack, 
         -64, VIRTUAL_HEIGHT - 128)
@@ -94,6 +106,12 @@ function BattleState:render()
     love.graphics.setColor(45/255, 184/255, 45/255, 124/255)
     love.graphics.ellipse('fill', self.opponentCircleX, 60, 72, 24)
     love.graphics.ellipse('fill', self.playerCircleX, VIRTUAL_HEIGHT - 64, 72, 24)
+
+    if nightTime == true then
+        love.graphics.setColor(0, 0, .2, 0.5)
+        love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
+        love.graphics.setColor(1, 1, 1, 1)
+    end
 
     love.graphics.setColor(1, 1, 1, 1)
     self.opponentSprite:render()

@@ -36,5 +36,5 @@ function PlayState:update(dt)
 end
 
 function PlayState:render()
-    self.level:render()
+    self.level:render()   
 end

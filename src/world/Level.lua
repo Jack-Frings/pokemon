@@ -66,5 +66,12 @@ end
 function Level:render()
     self.baseLayer:render()
     self.grassLayer:render()
+
+    if nightTime == true then
+        love.graphics.setColor(0, 0, .2, 0.5)
+        love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
+        love.graphics.setColor(1, 1, 1, 1)
+    end
+
     self.player:render()
 end
