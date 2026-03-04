@@ -15,6 +15,29 @@ function PlayState:init()
     gSounds['field-music']:play()
 
     self.dialogueOpened = false
+
+    nightTimer = 0
+    nightDuration = 45
+end
+
+function nightUpdate(dt)
+    nightTimer = nightTimer + dt
+
+    if nightTimer >= nightDuration then
+        nightTime = not nightTime
+        nightTimer = nightTimer - nightDuration
+        if nightTime then
+            gStateStack:push(BattleMessageState('Night is coming... Be careful!', function() end), false)
+            Timer.after(1, function()
+                gStateStack:pop()
+            end)
+        elseif not nightTime then
+            gStateStack:push(BattleMessageState('The sun is rising again!',function() end, false))
+            Timer.after(1, function()
+                gStateStack:pop()
+            end)
+        end
+    end
 end
 
 function PlayState:update(dt)
@@ -32,6 +55,7 @@ function PlayState:update(dt)
         end))
     end
 
+    nightUpdate(dt)
     self.level:update(dt)
 end
 

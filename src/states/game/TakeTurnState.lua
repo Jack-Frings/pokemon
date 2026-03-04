@@ -212,9 +212,20 @@ function TakeTurnState:victory()
 
                         -- set our exp to whatever the overlap is
                         self.playerPokemon.currentExp = self.playerPokemon.currentExp - self.playerPokemon.expToLevel
+
+                        local oldHP = self.playerPokemon.HP
+                        local oldAttack = self.playerPokemon.attack
+                        local oldDefense = self.playerPokemon.defense
+                        local oldSpeed = self.playerPokemon.speed
+
+                        local HPIncrease, attackIncrease, defenseIncrease, speedIncrease = self.playerPokemon:statsLevelUp()
                         self.playerPokemon:levelUp()
 
-                        gStateStack:push(BattleMessageState('Congratulations! Level Up!',
+                        gStateStack:push(BattleMessageState('Congratulations! Level Up! ' ..
+                            'HP: ' .. oldHP .. ' + ' .. HPIncrease .. ' = ' .. self.playerPokemon.HP .. ' ' ..
+                            'Attack: ' .. oldAttack .. ' + ' .. attackIncrease .. ' = ' .. self.playerPokemon.attack .. ' ' ..
+                            'Defense: ' .. oldDefense .. ' + ' .. defenseIncrease .. ' = ' .. self.playerPokemon.defense .. ' ' ..
+                            'Speed: ' .. oldSpeed .. ' + ' .. speedIncrease .. ' = ' .. self.playerPokemon.speed,
                         function()
                             self:fadeOutWhite()
                         end))
