@@ -11,6 +11,8 @@ PlayState = Class{__includes = BaseState}
 function PlayState:init()
     self.level = Level()
 
+	self.heals = 10
+
     gSounds['field-music']:setLooping(true)
     gSounds['field-music']:play()
 
@@ -43,17 +45,24 @@ end
 
 function PlayState:update(dt)
     if not self.dialogueOpened and love.keyboard.wasPressed('p') then
-        
-        -- heal player pokemon
-        gSounds['heal']:play()
-        self.level.player.party.pokemon[1].currentHP = self.level.player.party.pokemon[1].HP
-        
-        -- show a dialogue for it, allowing us to do so again when closed
-        gStateStack:push(DialogueState('Your Pokemon has been healed!',
-    
-        function()
-            self.dialogueOpened = false
-        end))
+		local msg = "You've used up all your heals silly billy."
+
+		if self.heals >= 0 then
+			-- heal player pokemon
+			gSounds['heal']:play()
+			self.level.player.party.pokemon[1].currentHP = self.level.player.party.pokemon[1].HP
+
+			msg = "Your Pokemon has been healed. You have " .. tostring(self.heals) .. " heals remaining."
+
+			self.heals = self.heals - 1
+		end
+			
+			-- show a dialogue for it, allowing us to do so again when closed
+			gStateStack:push(DialogueState(msg,
+			function()
+				self.dialogueOpened = false
+			end))
+
     end
 
     nightUpdate(dt)
