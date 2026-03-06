@@ -12,6 +12,13 @@ function BattleState:init(player)
     self.player = player
     self.bottomPanel = Panel(0, VIRTUAL_HEIGHT - 64, VIRTUAL_WIDTH, 64)
 
+    self.moves = {
+        { name = 'Tackle',   power = 40, accuracy = 1.0 },
+        { name = 'Headbutt', power = 70, accuracy = 0.85 },
+        { name = 'Slam',     power = 90, accuracy = 0.75 },
+        { name = 'Growl',    power = 0,  accuracy = 1.0 }
+    }
+
     -- flag for when the battle can take input, set in the first update call
     self.battleStarted = false
 
@@ -33,14 +40,11 @@ function BattleState:init(player)
         }
     end
 
-    
-
     self.playerSprite = BattleSprite(self.player.party.pokemon[1].battleSpriteBack, 
         -64, VIRTUAL_HEIGHT - 128)
     self.opponentSprite = BattleSprite(self.opponent.party.pokemon[1].battleSpriteFront, 
         VIRTUAL_WIDTH, 8)
 
-    -- health bars for pokemon
     self.playerHealthBar = ProgressBar {
         x = VIRTUAL_WIDTH - 160,
         y = VIRTUAL_HEIGHT - 80,
@@ -61,7 +65,6 @@ function BattleState:init(player)
         max = self.opponent.party.pokemon[1].HP
     }
 
-    -- exp bar for player
     self.playerExpBar = ProgressBar {
         x = VIRTUAL_WIDTH - 160,
         y = VIRTUAL_HEIGHT - 73,
@@ -72,14 +75,11 @@ function BattleState:init(player)
         max = self.player.party.pokemon[1].expToLevel
     }
 
-    -- flag for rendering health (and exp) bars, shown after pokemon slide in
     self.renderHealthBars = false
 
-    -- circles underneath pokemon that will slide from sides at start
     self.playerCircleX = -68
     self.opponentCircleX = VIRTUAL_WIDTH + 32
 
-    -- references to active pokemon
     self.playerPokemon = self.player.party.pokemon[1]
     self.opponentPokemon = self.opponent.party.pokemon[1]
 end
@@ -90,11 +90,9 @@ end
 
 function BattleState:exit()
     gSounds['battle-music']:stop()
-    -- gSounds['field-music']:play()
 end
 
 function BattleState:update(dt)
-    -- this will trigger the first time this state is actively updating on the stack
     if not self.battleStarted then
         self:triggerSlideIn()
     end
@@ -122,7 +120,6 @@ function BattleState:render()
         self.opponentHealthBar:render()
         self.playerExpBar:render()
 
-        -- render level text
         love.graphics.setColor(0, 0, 0, 1)
         love.graphics.setFont(gFonts['small'])
         love.graphics.print('LV ' .. tostring(self.playerPokemon.level),
@@ -139,7 +136,6 @@ end
 function BattleState:triggerSlideIn()
     self.battleStarted = true
 
-    -- slide the sprites and circles in from the edges, then trigger first dialogue boxes
     Timer.tween(1, {
         [self.playerSprite] = {x = 32},
         [self.opponentSprite] = {x = VIRTUAL_WIDTH - 96},
@@ -152,16 +148,10 @@ function BattleState:triggerSlideIn()
 end
 
 function BattleState:triggerStartingDialogue()
-    
-    -- display a dialogue first for the pokemon that appeared, then the one being sent out
     gStateStack:push(BattleMessageState('A wild ' .. tostring(self.opponent.party.pokemon[1].name ..
         ' appeared!'),
-    
-    -- callback for when the battle message is closed
     function()
         gStateStack:push(BattleMessageState('Go, ' .. tostring(self.player.party.pokemon[1].name .. '!'),
-    
-        -- push a battle menu onto the stack that has access to the battle state
         function()
             gStateStack:push(BattleMenuState(self))
         end))

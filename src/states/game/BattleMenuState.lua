@@ -10,10 +10,8 @@ BattleMenuState = Class{__includes = BaseState}
 
 function BattleMenuState:init(battleState)
     self.battleState = battleState
-
-	local speed_diff = self.battleState.player.party.pokemon[1].speed - self.battleState.opponent.party.pokemon[1].speed 
-
-	self.escape_chance = math.min(0.95, math.max(0.1, 0.5 + (0.05*speed_diff)))
+    local speed_diff = self.battleState.player.party.pokemon[1].speed - self.battleState.opponent.party.pokemon[1].speed 
+    self.escape_chance = math.min(0.95, math.max(0.1, 0.5 + (0.05*speed_diff)))
     
     self.battleMenu = Menu {
         x = VIRTUAL_WIDTH - 64,
@@ -25,55 +23,39 @@ function BattleMenuState:init(battleState)
                 text = 'Fight',
                 onSelect = function()
                     gStateStack:pop()
-                    gStateStack:push(TakeTurnState(self.battleState))
+                    gStateStack:push(MoveSelectState(self.battleState))
                 end
             },
             {
                 text = 'Run',
                 onSelect = function()
-					if math.random() < self.escape_chance then
-						gSounds['run']:play()
-						
-						-- pop battle menu
-						gStateStack:pop()
-
-						-- show a message saying they successfully ran, then fade in
-						-- and out back to the field automatically
-						gStateStack:push(BattleMessageState('You fled successfully!',
-							function() end), false)
-						Timer.after(0.5, function()
-							gStateStack:push(FadeInState({
-								r = 1, g = 1, b = 1
-							}, 1,
-							
-							-- pop message and battle state and add a fade to blend in the field
-							function()
-
-								-- resume field music
-								gSounds['field-music']:play()
-
-								-- pop message state
-								gStateStack:pop()
-
-								-- pop battle state
-								gStateStack:pop()
-
-								gStateStack:push(FadeOutState({
-									r = 1, g = 1, b = 1
-								}, 1, function()
-									-- do nothing after fade out ends
-								end))
-							end))
-						end)
-					else
-						gSounds['run']:play()
-						gStateStack:pop() -- pop battle menu
-						local state = TakeTurnState(self.battleState)
-						state.attempted_run = true
-						gStateStack:push(BattleMessageState("Couldn't escape!", function()
-							gStateStack:push(state)
-						end))
-					end
+                    if math.random() < self.escape_chance then
+                        gSounds['run']:play()
+                        gStateStack:pop()
+                        gStateStack:push(BattleMessageState('You fled successfully!',
+                            function() end), false)
+                        Timer.after(0.5, function()
+                            gStateStack:push(FadeInState({
+                                r = 1, g = 1, b = 1
+                            }, 1,
+                            function()
+                                gSounds['field-music']:play()
+                                gStateStack:pop()
+                                gStateStack:pop()
+                                gStateStack:push(FadeOutState({
+                                    r = 1, g = 1, b = 1
+                                }, 1, function() end))
+                            end))
+                        end)
+                    else
+                        gSounds['run']:play()
+                        gStateStack:pop()
+                        local state = TakeTurnState(self.battleState)
+                        state.attempted_run = true
+                        gStateStack:push(BattleMessageState("Couldn't escape!", function()
+                            gStateStack:push(state)
+                        end))
+                    end
                 end
             }
         }
