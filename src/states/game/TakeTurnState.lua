@@ -16,6 +16,8 @@ function TakeTurnState:init(battleState)
     self.playerSprite = self.battleState.playerSprite
     self.opponentSprite = self.battleState.opponentSprite
 
+	self.attempted_run = false
+
     -- figure out which pokemon is faster, as they get to attack first
     if self.playerPokemon.speed > self.opponentPokemon.speed then
         self.firstPokemon = self.playerPokemon
@@ -35,6 +37,22 @@ function TakeTurnState:init(battleState)
 end
 
 function TakeTurnState:enter(params)
+	if self.attempted_run then 
+		self:attack(self.opponentPokemon, self.playerPokemon, self.opponentSprite, self.playerSprite, 
+				self.battleState.opponentHealthBar, self.battleState.playerHealthBar,
+				function()
+					gStateStack:pop()
+					if self:checkDeaths() then
+						gStateStack:pop()
+						return
+					end
+					gStateStack:pop()
+					gStateStack:push(BattleMenuState(self.battleState))
+				end)
+
+		return
+	end
+
     self:attack(self.firstPokemon, self.secondPokemon, self.firstSprite, self.secondSprite, self.firstBar, self.secondBar,
 
     function()
