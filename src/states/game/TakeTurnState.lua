@@ -18,7 +18,15 @@ function TakeTurnState:init(battleState, playerMove)
 
     self.attempted_run = false
     self.playerMove = playerMove or self.battleState.moves[1]
-    self.opponentMove = self.battleState.moves[math.random(#self.battleState.moves)]
+
+    -- opponent picks randomly but never heals
+    local opponentMoves = {}
+    for _, move in ipairs(self.battleState.moves) do
+        if not move.heal then
+            table.insert(opponentMoves, move)
+        end
+    end
+    self.opponentMove = opponentMoves[math.random(#opponentMoves)]
 
     if self.playerPokemon.speed > self.opponentPokemon.speed then
         self.firstPokemon = self.playerPokemon
@@ -74,6 +82,35 @@ function TakeTurnState:attack(attacker, defender, attackerSprite, defenderSprite
         function() end, false))
 
     Timer.after(0.5, function()
+
+        -- handle heal move
+        if move.heal then
+            gStateStack:pop()
+            if self.battleState.playState.heals <= 0 then
+                gStateStack:push(BattleMessageState("No heals remaining!",
+                    function() end, false))
+                Timer.after(0.5, function()
+                    onEnd()
+                end)
+            else
+                local healAmount = math.floor(attacker.HP / 2)
+                attacker.currentHP = math.min(attacker.HP, attacker.currentHP + healAmount)
+                self.battleState.playState.heals = self.battleState.playState.heals - 1
+
+                Timer.tween(0.5, {
+                    [attackerBar] = {value = attacker.currentHP}
+                })
+
+                gStateStack:push(BattleMessageState(attacker.name .. ' healed! ' ..
+                    self.battleState.playState.heals .. ' heals remaining.',
+                    function() end, false))
+                Timer.after(0.5, function()
+                    onEnd()
+                end)
+            end
+            return
+        end
+
         gSounds['powerup']:stop()
         gSounds['powerup']:play()
 
@@ -148,7 +185,7 @@ function TakeTurnState:faint()
                 gStateStack:pop()
                 gStateStack:push(FadeOutState({
                     r = 0, g = 0, b = 0
-                }, 1, function() 
+                }, 1, function()
                     gStateStack:push(DialogueState('Your Pokemon has been fully restored; try again!'))
                 end))
             end))
@@ -215,7 +252,7 @@ end
 function TakeTurnState:fadeOutWhite()
     gStateStack:push(FadeInState({
         r = 1, g = 1, b = 1
-    }, 1, 
+    }, 1,
     function()
         gSounds['victory-music']:stop()
         gSounds['field-music']:play()

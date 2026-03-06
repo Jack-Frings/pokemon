@@ -8,15 +8,16 @@
 
 BattleState = Class{__includes = BaseState}
 
-function BattleState:init(player)
+function BattleState:init(player, playState)
     self.player = player
+	self.playState = playState
     self.bottomPanel = Panel(0, VIRTUAL_HEIGHT - 64, VIRTUAL_WIDTH, 64)
 
     self.moves = {
         { name = 'Tackle',   power = 40, accuracy = 1.0 },
-        { name = 'Headbutt', power = 70, accuracy = 0.85 },
-        { name = 'Slam',     power = 90, accuracy = 0.75 },
-        { name = 'Growl',    power = 0,  accuracy = 1.0 }
+        { name = 'Supercharge', power = 70, accuracy = 0.85 },
+        { name = 'Ultima',     power = 140, accuracy = 0.5 },
+        { name = 'Heal',    power = 0,  accuracy = 1.0, heal=true }
     }
 
     -- flag for when the battle can take input, set in the first update call
