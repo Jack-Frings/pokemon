@@ -10,7 +10,8 @@ BattleMenuState = Class{__includes = BaseState}
 
 function BattleMenuState:init(battleState)
     self.battleState = battleState
-    local speed_diff = self.battleState.player.party.pokemon[1].speed - self.battleState.opponent.party.pokemon[1].speed 
+    local speed_diff = (self.battleState.player.party.pokemon[1].speed 
+		- self.battleState.opponent.party.pokemon[1].speed)
     self.escape_chance = math.min(0.95, math.max(0.1, 0.5 + (0.05*speed_diff)))
     
     self.battleMenu = Menu {

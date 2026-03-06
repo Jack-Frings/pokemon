@@ -230,7 +230,6 @@ function TakeTurnState:victory()
                         local oldSpeed = self.playerPokemon.speed
 
                         local HPIncrease, attackIncrease, defenseIncrease, speedIncrease = self.playerPokemon:statsLevelUp()
-                        self.playerPokemon:levelUp()
 
                         gStateStack:push(BattleMessageState('Congratulations! Level Up! ' ..
                             'HP: ' .. oldHP .. ' + ' .. HPIncrease .. ' = ' .. self.playerPokemon.HP .. ' ' ..

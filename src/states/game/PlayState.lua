@@ -13,7 +13,7 @@ function PlayState:init()
     gSounds['field-music']:play()
     self.dialogueOpened = false
     nightTimer = 0
-    nightDuration = 45
+    nightDuration = 20
 end
 
 function nightUpdate(dt)
